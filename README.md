@@ -4,7 +4,7 @@ Advent of Code 2018 solutions, done in Rust because I like being a little masoch
 ## Solutions
 - [x]  1
 - [x]  2
-- [ ]  3
+- [x]  3
 - [ ]  4
 - [ ]  5
 - [ ]  6
