@@ -1,6 +1,8 @@
 # advent-of-code-18
 Advent of Code 2018 solutions, done in Rust because I like being a little masochistic c:
 
+Please don't judge how my code looks, I'm still only learning how Rust works
+
 ## Solutions
 - [x]  1
 - [x]  2
