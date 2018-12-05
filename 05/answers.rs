@@ -57,8 +57,12 @@ fn calc2(input: &mut String) -> u32 {
 fn remove_polarities(input: &mut String) -> &mut String {
     // If we iterate from end to start, we can splice out the indices as we meet them
     for i in (1..input.len()).rev() {
-        let c0 = &input.chars().nth(i).unwrap_or(' ');
-        let c1 = &input.chars().nth(i - 1).unwrap_or(' ');
+        // Check that we haven't gone out of bounds with i + 1;
+        if i + 1 >= input.len() {
+            continue;
+        }
+        let c0 = &input[i..i+1].chars().next().unwrap();
+        let c1 = &input[i-1..i].chars().next().unwrap();
         if (c0.is_lowercase() && c1.is_uppercase()) || (c0.is_uppercase() && c1.is_lowercase()) {
             if c0.to_lowercase().next().unwrap() == c1.to_lowercase().next().unwrap() {
                 // Remove the characters at position i and i - 1
