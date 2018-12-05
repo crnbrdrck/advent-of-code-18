@@ -23,7 +23,8 @@ fn main() {
     [1518-11-05 00:03] Guard #99 begins shift
     [1518-11-05 00:45] falls asleep
     [1518-11-05 00:55] wakes up";
-    println!("{} should be 240", calc(test));
+    let (test_ans1, test_ans2) = calc(test);
+    println!("({}, {}) should be (240, 4455)", test_ans1, test_ans2);
 
     // Now do with the actual file
     let mut file = File::open("input.txt").expect("File 'input.txt' could not be opened.");
@@ -31,10 +32,11 @@ fn main() {
     file.read_to_string(&mut contents).expect("File 'input.txt' could not be read.");
     // Trim the file to avoid having that error again
     contents = contents.trim().to_string();
-    println!("Puzzle Answer #1: {}", calc(&contents));
+    let (ans1, ans2) = calc(&contents);
+    println!("Puzzle Answers: {}, {}", ans1, ans2);
 }
 
-fn calc(input: &str) -> u32 {
+fn calc(input: &str) -> (u32, u32) {
     // First, split input on newlines and sort by the time in the square brackets
     let mut lines: Vec<&str> = input.split("\n").map(|s| s.trim()).collect();
     lines.sort_unstable_by(|a, b| date_time_sort(a, b));
@@ -78,7 +80,22 @@ fn calc(input: &str) -> u32 {
         }
     }
 
-    return (max_id * max_minute) as u32;
+    // The funny thing about part 2 is I did that first :eyes:
+    let mut pt_2_max_id = 0;
+    let mut pt_2_max_minute = 0;
+    let mut pt_2_max_count= 0;
+
+    for (id, times) in &sleep_times {
+        for (min, sleep_count) in times {
+            if sleep_count > &pt_2_max_count {
+                pt_2_max_count = *sleep_count;
+                pt_2_max_minute = *min;
+                pt_2_max_id = *id;
+            }
+        }
+    }
+
+    return ((max_id * max_minute) as u32, (pt_2_max_id * pt_2_max_minute) as u32);
 }
 
 fn parse_times(lines: Vec<&str>, sleep_times: &mut HashMap<u32, HashMap<u32, u32>>) {
