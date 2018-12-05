@@ -1,7 +1,7 @@
 # advent-of-code-18
 Advent of Code 2018 solutions, done in Rust because I like being a little masochistic c:
 
-Please don't judge how my code looks, I'm still only learning how Rust works
+Please don't judge how my code looks, I'm still only learning how Rust works, which is also why I want to do this without using external crates unless extremely necessary, in which case I will upload the Cargo.toml file I used as well
 
 ## Solutions
 - [x]  1
