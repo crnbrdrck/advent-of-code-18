@@ -19,9 +19,10 @@ fn main() {
     let mut contents = String::new();
     file.read_to_string(&mut contents).expect("File 'input.txt' could not be read.");
     contents = contents.trim().to_string();
-    println!("Puzzle Answer #1: {}", calc(&mut contents));
+    println!("Puzzle Answer #1: {}", calc(&contents));
 
     println!("{} should be 16", calc2(test, 32));
+    println!("Puzzle Answer #2: {}", calc2(&contents, 10000));
 }
 
 fn calc(input: &str) -> u32 {
@@ -75,7 +76,23 @@ fn calc(input: &str) -> u32 {
 fn calc2(input: &str, max_dist: u32) -> u32 {
     // Alternatively now we want to find the area of the region where all the cells are at most `max_dist` from all of the input coords
     // The max_dist is the maximum that the sum of the distances from a cell to all the specified coords can be
-    return 0 as u32;
+
+    // Start by getting the grid size and coords properly
+    let (coords, max_x, max_y) = get_coords(input);
+
+    // For each cell, get the sum of the distances to each of the coords and check against the allowed max
+    let mut cells = 0;
+
+    for x in 0..=max_x {
+        for y in 0..=max_y {
+            let dist_sum: u32 = (&coords).into_iter().map(|c| manhattan((x, y), *c)).sum();
+            if dist_sum < max_dist {
+                cells += 1;
+            }
+        }
+    }
+
+    return cells as u32;
 }
 
 fn get_coords(input: &str) -> (Vec<(i32, i32)>, i32, i32) {
