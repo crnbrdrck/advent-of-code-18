@@ -13,7 +13,7 @@ Please don't judge how my code looks, I'm still only learning how Rust works, wh
 - [x]  [3](https://github.com/crnbrdrck/advent-of-code-18/blob/master/03/answers.rs)
 - [x]  [4](https://github.com/crnbrdrck/advent-of-code-18/blob/master/04/answers.rs)
 - [x]  [5](https://github.com/crnbrdrck/advent-of-code-18/blob/master/05/answers.rs)
-- [ ]  6
+- [x]  [6](https://github.com/crnbrdrck/advent-of-code-18/blob/master/06/answers.rs)
 - [ ]  7
 - [ ]  8
 - [ ]  9
