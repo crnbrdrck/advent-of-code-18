@@ -124,7 +124,6 @@ fn parse_task_map(tasks: &mut HashMap<String, Vec<&str>>, task_names: &mut HashS
                 continue;
             }
             if time as u32 == worker.start_time as u32 + get_time_for_task_name(&worker.task) {
-                println!("Freeing {:?} at {}", worker, time);
                 free_worker(tasks, &mut choices, &mut worker);
 
             }
@@ -141,7 +140,6 @@ fn parse_task_map(tasks: &mut HashMap<String, Vec<&str>>, task_names: &mut HashS
             // Get the next task from the choices heap and assign it to the worker
             if let Some(worker) = get_free_worker(workers) {
                 worker.set_task(&choices.pop().unwrap().name, time);
-                println!("Starting {:?} at {}", worker, time);
             }
 
             else {
