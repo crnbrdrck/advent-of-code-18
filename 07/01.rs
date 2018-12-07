@@ -138,3 +138,9 @@ fn get_initial_choices(tasks: HashMap<String, Vec<&str>>, names: &mut HashSet<&s
 
     return choices;
 }
+
+fn get_time_for_task_name(name: &str) -> u32 {
+    // Given a task name, return the length of time it will take
+    let names = " ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    return (60 + names.find(name.chars().next().unwrap()).unwrap()) as u32;
+}
