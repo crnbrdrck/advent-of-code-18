@@ -12,7 +12,7 @@ struct Task {
 }
 
 // Make a worker struct to manage workers
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug)]
 struct Worker {
     start_time: i32,
     task: String,
@@ -57,12 +57,12 @@ fn main() {
     println!("Test Answer: {}", calc(test, 2 as u32));
 
     // Now do with the actual file
-    // let mut file = File::open("input.txt").expect("File 'input.txt' could not be opened.");
-    // let mut contents = String::new();
-    // file.read_to_string(&mut contents).expect("File 'input.txt' could not be read.");
-    // // Trim the file to avoid having that error again
-    // contents = contents.trim().to_string();
-    // println!("Puzzle #2 Answer: {:?}", calc(&contents));
+    let mut file = File::open("input.txt").expect("File 'input.txt' could not be opened.");
+    let mut contents = String::new();
+    file.read_to_string(&mut contents).expect("File 'input.txt' could not be read.");
+    // Trim the file to avoid having that error again
+    contents = contents.trim().to_string();
+    println!("Puzzle #2 Answer: {:?}", calc(&contents, 5 as u32));
 }
 
 fn calc(input: &str, num_workers: u32) -> i32 {
@@ -77,7 +77,7 @@ fn calc(input: &str, num_workers: u32) -> i32 {
     for _ in 0..num_workers {
         workers.push(Worker {start_time: 0, task: "".to_string()});
     }
-    return parse_task_map(&mut task_map, &mut task_names, workers);
+    return parse_task_map(&mut task_map, &mut task_names, &mut workers);
 }
 
 fn parse_task_list(input: &str) -> (HashMap<String, Vec<&str>>, HashSet<&str>) {
@@ -104,7 +104,7 @@ fn parse_task_list(input: &str) -> (HashMap<String, Vec<&str>>, HashSet<&str>) {
     return (task_map, task_names);
 }
 
-fn parse_task_map(tasks: &mut HashMap<String, Vec<&str>>, task_names: &mut HashSet<&str>, workers: Vec<Worker>) -> i32 {
+fn parse_task_map(tasks: &mut HashMap<String, Vec<&str>>, task_names: &mut HashSet<&str>, workers: &mut Vec<Worker>) -> i32 {
     // Given a task map indicating job priorities, return a string of the jobs in order that they should be done
 
     // Get the initial choices from the map; the job(s) that have no predecessors, in alpha order
@@ -113,20 +113,20 @@ fn parse_task_map(tasks: &mut HashMap<String, Vec<&str>>, task_names: &mut HashS
     // Switch to looping through the tasks hash, as we take tasks out of there when they're done
     // Keep track of the time
     let mut time = -1 as i32;
-    while !tasks.is_empty() {
+    while !tasks.is_empty() || !workers_finished(workers.clone()) {
         // Increment time at the start of the loop
         time += 1;
 
         // First, check if any workers have been freed up in this cycle
-        for mut worker in workers {
+        for mut worker in &mut workers.iter_mut() {
             // Skip free workers
             if worker.is_free() {
                 continue;
             }
-            println!("Checking if {:?} should be finished at {}", worker, time);
             if time as u32 == worker.start_time as u32 + get_time_for_task_name(&worker.task) {
                 println!("Freeing {:?} at {}", worker, time);
                 free_worker(tasks, &mut choices, &mut worker);
+
             }
         }
 
@@ -139,9 +139,9 @@ fn parse_task_map(tasks: &mut HashMap<String, Vec<&str>>, task_names: &mut HashS
         // Keep looping through our workers until we don't have any free ones
         while !choices.is_empty() {
             // Get the next task from the choices heap and assign it to the worker
-            if let Some(ref mut worker) = get_free_worker(workers) {
+            if let Some(worker) = get_free_worker(workers) {
                 worker.set_task(&choices.pop().unwrap().name, time);
-                println!("{:?}", worker);
+                println!("Starting {:?} at {}", worker, time);
             }
 
             else {
@@ -209,13 +209,23 @@ fn free_worker(tasks: &mut HashMap<String, Vec<&str>>, choices: &mut BinaryHeap<
     tasks.remove(&task);
 }
 
-fn get_free_worker(workers: Vec<Worker>) -> Option<Worker> {
+fn get_free_worker(workers: &mut Vec<Worker>) -> Option<&mut Worker> {
     // Find the first free worker in the vector and return it or None
     // A free worker has a task name of the empty string
-    for worker in workers {
+    for worker in workers.iter_mut() {
         if worker.is_free() {
             return Some(worker);
         }
     }
     return None;
+}
+
+fn workers_finished(workers: Vec<Worker>) -> bool {
+    // Ensure that all workers are finished before ending the loop
+    for worker in workers.iter() {
+        if !worker.is_free() {
+            return false;
+        }
+    }
+    return true;
 }
