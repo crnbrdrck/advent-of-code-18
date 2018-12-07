@@ -14,7 +14,9 @@ Please don't judge how my code looks, I'm still only learning how Rust works, wh
 - [x]  [4](https://github.com/crnbrdrck/advent-of-code-18/blob/master/04/answers.rs)
 - [x]  [5](https://github.com/crnbrdrck/advent-of-code-18/blob/master/05/answers.rs)
 - [x]  [6](https://github.com/crnbrdrck/advent-of-code-18/blob/master/06/answers.rs)
-- [ ]  7
+- [x]  7
+    - [Part 1](https://github.com/crnbrdrck/advent-of-code-18/blob/master/07/01.rs)
+    - [Part 2](https://github.com/crnbrdrck/advent-of-code-18/blob/master/07/02.rs)
 - [ ]  8
 - [ ]  9
 - [ ] 10
