@@ -1,5 +1,4 @@
 
-
 // Define a struct for the nodes
 #[derive(Clone, Eq, PartialEq)]
 struct Node {
@@ -16,10 +15,10 @@ fn main() {
 
 fn calc(input: &str) -> i32 {
     // Convert the input into a vector of i32s
-    let vec: Vec<i32> = input.split(" ").map(|s| s.trim().parse::<i32>().unwrap()).collect();
+    let nodes: Vec<i32> = input.split(" ").map(|s| s.trim().parse::<i32>().unwrap()).collect();
 
     // Given a space separated list of numbers, parse them as nodes and then sum the metadatas
-    let (root, _) = parse_nodes(vec, &mut 0);
+    let root = parse_nodes(&mut nodes.into_iter());
 
     // Iterate through the node, summing all the metadata
     let meta = parse_meta(root);
@@ -27,33 +26,28 @@ fn calc(input: &str) -> i32 {
     return meta;
 }
 
-fn parse_nodes(input: Vec<i32>, i: &mut i32) -> (Node, i32) {
+fn parse_nodes(input: &mut Iterator<Item=i32>) -> Node {
     // Parse a node at position `i` of `vec` and return the node and the new value for `i` after parsing
-    while i < input.len() {
-        let node = Node {children: Vec::new(), metadata: Vec::new()};
-        // i is the number of children, i + 1 is the number of metadata items
-        let num_children = input[i..i+1];
-        i += 1;
-        let num_meta = input[i..i+1];
-        i += 1;
+    // Parsing child nodes will be recursive since child nodes can themselves have children
+    // Node: (num_children, num_meta, children, meta)
 
-        // i is now at the first child node position
-        for _ in 0..num_children {
-            let (child, i) = parse_nodes(input, i);
-            node.children.push(child);
-        }
+    let mut node = Node {children: Vec::new(), metadata: Vec::new()};
 
-        // i *should* now be at the first metadata position
-        for _ in 0..num_meta {
-            node.metadata.push(input[i]);
-            i += 1;
-        }
+    // No need to loop as there will be a single root node
+    // The first two next calls will get the num children and num metadata from the iterator
+    let num_children = input.next().unwrap();
+    let num_meta = input.next().unwrap();
 
-        // Increment i once more after parsing the node
-        i += 1;
+    // Loop through the children and parse them
+    for _ in 0..num_children {
+        node.children.push(parse_nodes(input));
     }
 
-    return (Node {children: Vec::new(), metadata: Vec::new()}, i);
+    // Loop through the number of metadata entries and add those to the meta array
+    for _ in 0..num_meta {
+        node.metadata.push(input.next().unwrap());
+    }
+    return node;
 }
 
 fn parse_meta(node: Node) -> i32 {
