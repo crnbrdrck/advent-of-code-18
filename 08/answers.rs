@@ -1,4 +1,7 @@
 
+use std::fs::File;
+use std::io::prelude::*;
+
 // Define a struct for the nodes
 #[derive(Clone, Eq, PartialEq)]
 struct Node {
@@ -11,9 +14,23 @@ fn main() {
     // Probably will parse recursively
     let test = "2 3 0 3 10 11 12 1 1 0 1 99 2 1 1 2";
     println!("{:?} should equal 138", calc(test));
+
+    // Now do with the actual file
+    let mut file = File::open("input.txt").expect("File 'input.txt' could not be opened.");
+    let mut contents = String::new();
+    file.read_to_string(&mut contents).expect("File 'input.txt' could not be read.");
+    // Trim the file to avoid having that error again
+    contents = contents.trim().to_string();
+    println!("Puzzle #1 Answer: {:?}", calc(&contents));
+
+    // Part 2; sum of the values of the nodes
+    println!("{:?} should equal 66", calc2(test));
+    println!("Puzzle #2 Answer: {:?}", calc2(&contents));
 }
 
 fn calc(input: &str) -> i32 {
+    // Given a string input, get the sums of the metadata for every node that the input defines
+
     // Convert the input into a vector of i32s
     let nodes: Vec<i32> = input.split(" ").map(|s| s.trim().parse::<i32>().unwrap()).collect();
 
@@ -21,9 +38,19 @@ fn calc(input: &str) -> i32 {
     let root = parse_nodes(&mut nodes.into_iter());
 
     // Iterate through the node, summing all the metadata
-    let meta = parse_meta(root);
+    return parse_meta(root);
+}
 
-    return meta;
+fn calc2(input: &str) -> i32 {
+    // Given a string input, get the sums of the metadata for every node that the input defines
+    // Convert the input into a vector of i32s
+    let nodes: Vec<i32> = input.split(" ").map(|s| s.trim().parse::<i32>().unwrap()).collect();
+
+    // Given a space separated list of numbers, parse them as nodes and then sum the metadatas
+    let root = parse_nodes(&mut nodes.into_iter());
+
+    // Iterate through the node, summing all the values of the node
+    return parse_value(&root);
 }
 
 fn parse_nodes(input: &mut Iterator<Item=i32>) -> Node {
@@ -65,4 +92,29 @@ fn parse_meta(node: Node) -> i32 {
     }
 
     return meta_sum;
+}
+
+fn parse_value(node: &Node) -> i32 {
+    // Given a root node, calculate the sum of the values for each node in the tree under it
+    // If the node has children, use the metadata of the node as (1) indexes into the array of children and the value of the supplied node is the sum of the values of the referenced children
+    // If not, the value of the node is the sum of it's metadata
+
+    if node.children.len() == 0 {
+        return node.metadata.iter().sum();
+    }
+
+    // Iterate through the metadata and use the numbers held within to index into the children array
+    // Subtract 1 first as it is to be use 1 indexing, not 0 indexing
+    // Also ignore references that don't exist
+    let mut value = 0;
+    for mut index in node.metadata.clone().iter_mut() {
+        *index -= 1;
+        if *index < 0 {
+            continue;
+        }
+        if let Some(child) = node.children.get((*index) as usize) {
+            value += parse_value(child);
+        }
+    }
+    return value;
 }
