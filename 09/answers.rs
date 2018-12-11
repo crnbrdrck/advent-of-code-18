@@ -2,7 +2,7 @@
 // Make the Circle a struct to make life a little easier
 #[derive(Debug)]
 struct Circle {
-    items: Vec<i32>
+    items: Vec<i32>  // Make this a LinkedList somehow to speed things up (use a Node struct) because insert in this doesn't work great
 }
 
 impl Circle {
@@ -53,8 +53,8 @@ fn main() {
     println!("Puzzle Answer #1: {:?}", calc(puzzle));
 
     // Puzzle input 2; last marble is 100 times larger
-    // let puzzle = "424 players; last marble is worth 7114400 points";
-    // println!("Puzzle Answer #2: {:?}", calc(puzzle));
+    let puzzle = "424 players; last marble is worth 7114400 points";
+    println!("Puzzle Answer #2: {:?}", calc(puzzle));
 }
 
 fn calc(input: &str) -> u64 {
@@ -77,6 +77,7 @@ fn play(players: &mut Vec<u64>, num_marbles: i32) {
     let mut marble_to_add = 2;
 
     while marble_to_add <= num_marbles {
+        println!("{:?} ({}%)", marble_to_add, marble_to_add * 100 / num_marbles);
         // Loop until all the marbles have been used, curr player is (marble_to_add - 1) % players.len()
         let curr_player = ((marble_to_add - 1) % players.len() as i32) as usize;
 
