@@ -51,9 +51,13 @@ fn main() {
     // Try the puzzle input
     let puzzle = "424 players; last marble is worth 71144 points";
     println!("Puzzle Answer #1: {:?}", calc(puzzle));
+
+    // Puzzle input 2; last marble is 100 times larger
+    // let puzzle = "424 players; last marble is worth 7114400 points";
+    // println!("Puzzle Answer #2: {:?}", calc(puzzle));
 }
 
-fn calc(input: &str) -> i32 {
+fn calc(input: &str) -> u64 {
     // Given a string stating the number of players and marbles, calculate the highest player's score
     let (mut players, num_marbles) = parse_input(&input);
 
@@ -64,7 +68,7 @@ fn calc(input: &str) -> i32 {
     return *players.iter().max().unwrap();
 }
 
-fn play(players: &mut Vec<i32>, num_marbles: i32) {
+fn play(players: &mut Vec<u64>, num_marbles: i32) {
     // Play the game, updating the score vec as necessary
 
     // Start off with the marbles 0 and 1 in the circle (to avoid weird edge casing)
@@ -82,7 +86,7 @@ fn play(players: &mut Vec<i32>, num_marbles: i32) {
             let (mut score, new_index) = circle.remove_scoring_marble(current_marble);
             current_marble = new_index;
             score += marble_to_add;
-            players[curr_player] += score;
+            players[curr_player] += score as u64;
         }
         else {
             current_marble = circle.add_new_marble(current_marble, marble_to_add);
@@ -91,7 +95,7 @@ fn play(players: &mut Vec<i32>, num_marbles: i32) {
     }
 }
 
-fn parse_input(input: &str) -> (Vec<i32>, i32) {
+fn parse_input(input: &str) -> (Vec<u64>, i32) {
     // Parse the puzzle input and return a vector for player scores, and the number of marbles to use in the game
     // split on space; players = 0, marbles = 6
     let split: Vec<&str> = input.split(" ").collect();
@@ -99,7 +103,7 @@ fn parse_input(input: &str) -> (Vec<i32>, i32) {
     let num_marbles = split[6].to_string().parse::<i32>().unwrap();
 
     // Create a vec for the player scores
-    let mut players: Vec<i32> = Vec::with_capacity(num_players as usize);
+    let mut players: Vec<u64> = Vec::with_capacity(num_players as usize);
     for _ in 0..num_players {
         players.push(0);
     }
