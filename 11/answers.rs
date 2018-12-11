@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 fn main() {
     // Given a grid serial number, find the (x, y) position of the top left corner of the 3x3 square with the largest power sum
     println!("{:?} should equal 33,45", calc(18));
@@ -5,6 +7,14 @@ fn main() {
 
     let puzzle_input = 9306;
     println!("Puzzle Answer #1: {:?}", calc(puzzle_input));
+
+    // Now expand the solution to allow for any sized square
+    // println!("{:?} should equal 90,269,16", calc2(18));
+    // println!("{:?} should equal 232,251,12", calc2(42));
+
+    // Tests work so just get the answer as it has a long runtime
+    // Once there have been no prints for a few seconds its worth trying the last thing output on screen
+    println!("Puzzle Answer #2: {:?}", calc2(puzzle_input));
 }
 
 fn calc(input: i32) -> String {
@@ -17,20 +27,38 @@ fn calc(input: i32) -> String {
     calculate_power(input, &mut matrix);
 
     // Now search the grid for the square with the largest sum and return it
-    let (x, y) = find_largest(&matrix);
+    let (x, y) = find_largest_3x3(&matrix);
 
     return format!("{},{}", x, y);
 }
 
-fn find_largest(matrix: &Vec<Vec<i32>>) -> (u32, u32) {
+fn calc2(input: i32) -> String {
+    // Find the X,Y coordinate of the top left corner of a square with the largest sum of power, returning the coords and the size
+
+    // Make a 300x300 matrix
+    let mut matrix: Vec<Vec<i32>> = generate_matrix();
+
+    // Go through the cells and calculate their power levels
+    calculate_power(input, &mut matrix);
+
+    // Create a cache to save complexity hopefully
+    let mut cache: HashMap<String, i32> = HashMap::new();
+
+    // Now search the grid for the square with the largest sum and return it
+    let (x, y, size) = find_largest(&matrix, &mut cache);
+
+    return format!("{},{},{}", x, y, size);
+}
+
+fn find_largest_3x3(matrix: &Vec<Vec<i32>>) -> (u32, u32) {
     // Find the top left coord of the 3x3 square with the biggest sum
     let mut max_sum = std::i32::MIN;
     let mut x = 0;
     let mut y = 0;
     // Iterate only up to 297 to avoid index out of bounds issues
-    for i in 0..297 {
-        for j in 0..297 {
-            let sum = calculate_sum(matrix, i, j);
+    for i in 0..=300 - 3 {
+        for j in 0..=300 - 3 {
+            let sum = calculate_sum(matrix, i, j, 3, &mut HashMap::new());
             if sum > max_sum {
                 max_sum = sum;
                 x = i;
@@ -41,15 +69,71 @@ fn find_largest(matrix: &Vec<Vec<i32>>) -> (u32, u32) {
     return (x + 1, y + 1);
 }
 
-fn calculate_sum(matrix: &Vec<Vec<i32>>, x: u32, y: u32) -> i32 {
-    // Given a matrix and the coords of the top left cell of a 3x3 grid, return the sum of that 3x3 grid
+fn find_largest(matrix: &Vec<Vec<i32>>, cache: &mut HashMap<String, i32>) -> (u32, u32, u32) {
+    // Find the top left coord of a square with the biggest sum, returning the coords and the size of the square
+    let mut max_sum = std::i32::MIN;
+    let mut x = 0;
+    let mut y = 0;
+    let mut max_size = 0;
+    // Iterate only up to 297 to avoid index out of bounds issues
+    for size in 1..=300 {
+        for i in 0..=(300 - size) {
+            for j in 0..=(300 - size) {
+                let sum = calculate_sum(matrix, i, j, size, cache);
+                if sum > max_sum {
+                    println!("{},{},{} = {}", i + 1, j + 1, size, sum);
+                    max_sum = sum;
+                    max_size = size;
+                    x = i;
+                    y = j;
+                }
+            }
+        }
+    }
+    return (x + 1, y + 1, max_size);
+}
+
+fn calculate_sum(matrix: &Vec<Vec<i32>>, x: u32, y: u32, size: u32, cache: &mut HashMap<String, i32>) -> i32 {
+    // Given a matrix and the coords of the top left cell of a `size` x `size` grid, return the sum of that `size` x `size` grid
+
+    // Base Case
+    if size == 0 {
+        return 0;
+    }
+
+    // Given how complex the part 2 solution is, I've implemented a little cache
+    let key = format!("{},{},{}", x, y, size);
+    if cache.contains_key(&key) {
+        return *cache.get(&key).unwrap();
+    }
+
     let mut values: Vec<i32> = Vec::new();
-    for i in x..x+3 {
-        for j in y..y+3 {
+    // To cleverly use the cache, we can just calculate the outermost layer of the square and recursively call this function
+    if size == 1 {
+        values.push(matrix[x as usize][y as usize]);
+    }
+    else {
+        // Go around the outermost edge to get the values (each value of y for the final x, each value of x for the final y)
+        let i = x + size - 1;
+
+        // All the outermost column
+        for j in y..(y + size) {
+            values.push(matrix[i as usize][j as usize]);
+        }
+
+        // All the outermost row (being careful not to add the bottom right corner multiple times)
+        let j = y + size - 1;
+        for i in x..(x + size - 1) {
             values.push(matrix[i as usize][j as usize]);
         }
     }
-    return values.into_iter().sum();
+
+    let mut sum = values.into_iter().sum();
+    // Add on the internal square's sum before returning
+    sum += calculate_sum(&matrix, x, y, size - 1, cache);
+    // Cache the answer before returning
+    cache.insert(key, sum);
+    return sum;
 }
 
 fn calculate_power(input: i32, matrix: &mut Vec<Vec<i32>>) {
