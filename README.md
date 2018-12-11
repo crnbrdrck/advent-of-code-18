@@ -18,7 +18,7 @@ Please don't judge how my code looks, I'm still only learning how Rust works, wh
     - [Part 1](https://github.com/crnbrdrck/advent-of-code-18/blob/master/07/01.rs)
     - [Part 2](https://github.com/crnbrdrck/advent-of-code-18/blob/master/07/02.rs)
 - [x] [8](https://github.com/crnbrdrck/advent-of-code-18/blob/master/08/answers.rs)
-- [ ] 9
+- [x] [9](https://github.com/crnbrdrck/advent-of-code-18/blob/master/09/answers.rs)
 - [ ] 10
 - [x] [11](https://github.com/crnbrdrck/advent-of-code-18/blob/master/11/answers.rs)
 - [ ] 12
